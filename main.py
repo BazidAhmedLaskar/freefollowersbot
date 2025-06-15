@@ -176,14 +176,26 @@ def handle_messages(update: Update, context: CallbackContext):
                     "🎁 *Zyada refer = Jaldi followers + Giveaway chance!*\n\n"
                     "📩 DM karo agar help chahiye: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
                 )
+refer_link = f"https://t.me/{context.bot.username}?start={user_id}"
 
-            refer_link = f"https://t.me/{context.bot.username}?start={user_id}"
-            buttons = [
-                [InlineKeyboardButton("🚀 Refer a Friend", url=refer_link)],
-                [InlineKeyboardButton("📸 Send Screenshot to Group", url="https://t.me/TeamTasminaSupport?startapp=My%20friend%20joined%20from%20my%20refer!%20Here's%20the%20screenshot%20📸")]
-            ]
+# Message to be shared via Telegram
+share_text = (
+    f"📢 I’m getting *real Instagram followers for free* using this awesome bot!\n\n"
+    f"🔥 Try it now: {refer_link}\n\n"
+    f"🤖 Powered by Team Tasmina 🚀"
+)
 
-            update.message.reply_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(buttons))
+# Telegram Share URL
+share_url = f"https://t.me/share/url?url={refer_link}&text={share_text}"
+
+buttons = [
+    [InlineKeyboardButton("🚀 Refer a Friend (Share)", url=share_url)],
+   ]
+
+          update.message.reply_text(
+    f"📲 Or just copy and send this to friends:\n\n{share_text}",
+    parse_mode="Markdown"
+)
 
             context.bot.send_message(
                 chat_id=ADMIN_ID,
