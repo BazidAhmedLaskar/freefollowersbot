@@ -33,18 +33,42 @@ def send_main_menu(context, chat_id, name, lang):
         text = f"🥳 Hello {name}!\n\n🔥 *Team Tasmina ke Insta Followers Bot mein dil se swagat hai!*\n\n💥 Ab free mein real followers milenge bhai! 👇 Option chuno aur chalu ho jao!"
 
     context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(buttons))
-
 def start(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     name = update.effective_user.full_name
     username = update.effective_user.username or "NoUsername"
 
+    # ✅ Handle referral
+    if context.args:
+        referrer_id = context.args[0]
+        if referrer_id != str(user_id):  # prevent self-referral
+            try:
+                context.bot.send_message(
+                    chat_id=int(referrer_id),
+                    text=(
+                        f"🎉 *Good news!*\n"
+                        f"{name} just joined the bot using *your referral link!* 🥳\n"
+                        f"Keep referring more to boost your chances! 💯"
+                    ),
+                    parse_mode="Markdown"
+                )
+            except:
+                pass  # if user blocked bot etc.
+
+            context.bot.send_message(
+                chat_id=ADMIN_ID,
+                text=f"👥 Referral Alert!\n{name} joined via {referrer_id}",
+                parse_mode="Markdown"
+            )
+
+    # 🔔 Notify admin of new user
     context.bot.send_message(
         chat_id=ADMIN_ID,
         text=f"⚡ *New user started the bot!*\n👤 *Name:* {name}\n🆔 *ID:* `{user_id}`\n🔗 *Username:* @{username}",
         parse_mode="Markdown"
     )
 
+    # 🌐 Language selection
     buttons = [[
         InlineKeyboardButton("🇮🇳 Hinglish", callback_data="lang_hinglish"),
         InlineKeyboardButton("🇺🇸 English", callback_data="lang_english")
