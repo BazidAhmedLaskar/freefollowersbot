@@ -1,4 +1,3 @@
-
 from flask import Flask
 from threading import Thread
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -40,20 +39,16 @@ def start(update: Update, context: CallbackContext):
     name = update.effective_user.full_name
     username = update.effective_user.username or "NoUsername"
 
-    # DM to admin
     context.bot.send_message(
         chat_id=ADMIN_ID,
         text=f"⚡ *New user started the bot!*\n👤 *Name:* {name}\n🆔 *ID:* `{user_id}`\n🔗 *Username:* @{username}",
         parse_mode="Markdown"
     )
 
-    # Ask for language
-    buttons = [
-        [
-            InlineKeyboardButton("🇮🇳 Hinglish", callback_data="lang_hinglish"),
-            InlineKeyboardButton("🇺🇸 English", callback_data="lang_english")
-        ]
-    ]
+    buttons = [[
+        InlineKeyboardButton("🇮🇳 Hinglish", callback_data="lang_hinglish"),
+        InlineKeyboardButton("🇺🇸 English", callback_data="lang_english")
+    ]]
     context.bot.send_message(
         chat_id=user_id,
         text="🌐 Please choose your language:\n🌐 कृपया अपनी भाषा चुनें:",
@@ -130,61 +125,61 @@ def handle_messages(update: Update, context: CallbackContext):
         text = "🔢 How many followers do you want? (e.g., 50, 100)" if lang == "en" else "🤔 Kitne followers chahiye? (jaise 50, 100) ✨"
         update.message.reply_text(text)
 
-   elif state.get("step") == "ask_followers":
-    if message.isdigit():
-        state["followers"] = int(message)
+    elif state.get("step") == "ask_followers":
+        if message.isdigit():
+            state["followers"] = int(message)
 
-        if lang == "en":
-            text = (
-                f"✅ *Thank you {name}!* 🎉\n\n"
-                f"📝 Your request for *{state['followers']}* followers has been submitted.\n"
-                "⏳ Please wait up to *24 hours*.\n\n"
-                "📸 To get followers faster:\n"
-                "➡️ Refer friends using the button below\n"
-                "📥 Ask them to start the bot\n"
-                "📸 Then *send the screenshot of the join message from our bot* in the group\n\n"
-                "🎁 *More referrals = Faster delivery + Giveaway entry!*\n\n"
-                "🔗 Instagram Support: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
+            if lang == "en":
+                text = (
+                    f"✅ *Thank you {name}!* 🎉\n\n"
+                    f"📝 Your request for *{state['followers']}* followers has been submitted.\n"
+                    "⏳ Please wait up to *24 hours*.\n\n"
+                    "📸 To get followers faster:\n"
+                    "➡️ Refer friends using the button below\n"
+                    "📥 Ask them to start the bot\n"
+                    "📸 Then *send the screenshot of the join message from our bot* in the group\n\n"
+                    "🎁 *More referrals = Faster delivery + Giveaway entry!*\n\n"
+                    "🔗 Instagram Support: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
+                )
+            else:
+                text = (
+                    f"✅ *Shukriya {name}!* ❤️\n\n"
+                    f"📤 Tumhara request *{state['followers']}* followers ke liye bhej diya gaya hai!\n"
+                    "🕒 24 ghante tak ka wait karo bhai 😇\n\n"
+                    "📸 Jaldi chahiye? Refer friends kar bhai 👇\n"
+                    "👥 Unko bol bot start kare\n"
+                    "📸 Fir uska screenshot group mein bhejna mat bhoolna\n\n"
+                    "🎁 *Zyada refer = Jaldi followers + Giveaway chance!*\n\n"
+                    "📩 DM karo agar help chahiye: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
+                )
+
+            refer_link = f"https://t.me/{context.bot.username}?start={user_id}"
+            buttons = [
+                [InlineKeyboardButton("🚀 Refer a Friend", url=refer_link)],
+                [InlineKeyboardButton("📸 Send Screenshot to Group", url="https://t.me/TeamTasminaSupport?startapp=My%20friend%20joined%20from%20my%20refer!%20Here's%20the%20screenshot%20📸")]
+            ]
+
+            update.message.reply_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(buttons))
+
+            context.bot.send_message(
+                chat_id=ADMIN_ID,
+                text=(
+                    "📥 New Follower Request:\n\n"
+                    f"👤 Name: {full_name} (ID: `{user_id}`)\n"
+                    f"📸 Username: `{state['username']}`\n"
+                    f"🔢 Followers Wanted: {state['followers']}"
+                ),
+                parse_mode="Markdown"
             )
+
+            del user_data[user_id]
         else:
-            text = (
-                f"✅ *Shukriya {name}!* ❤️\n\n"
-                f"📤 Tumhara request *{state['followers']}* followers ke liye bhej diya gaya hai!\n"
-                "🕒 24 ghante tak ka wait karo bhai 😇\n\n"
-                "📸 Jaldi chahiye? Refer friends kar bhai 👇\n"
-                "👥 Unko bol bot start kare\n"
-                "📸 Fir uska screenshot group mein bhejna mat bhoolna\n\n"
-                "🎁 *Zyada refer = Jaldi followers + Giveaway chance!*\n\n"
-                "📩 DM karo agar help chahiye: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
-            )
-
-        # Send confirmation with refer button
-        refer_link = f"https://t.me/{context.bot.username}?start={user_id}"
-        buttons = [[InlineKeyboardButton("🚀 Refer a Friend", url=refer_link)]]
-
-        update.message.reply_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(buttons))
-
-        # Notify admin
-        context.bot.send_message(
-            chat_id=ADMIN_ID,
-            text=(
-                "📥 New Follower Request:\n\n"
-                f"👤 Name: {full_name} (ID: `{user_id}`)\n"
-                f"📸 Username: `{state['username']}`\n"
-                f"🔢 Followers Wanted: {state['followers']}"
-            ),
-            parse_mode="Markdown"
-        )
-
-        del user_data[user_id]
-    else:
-        msg = "❌ Please enter a valid number (e.g., 50, 100)." if lang == "en" else "❗ Bhai number galat hai! Sahi number bhejo jaise 50, 100 😅"
-        update.message.reply_text(msg)
-
+            msg = "❌ Please enter a valid number (e.g., 50, 100)." if lang == "en" else "❗ Bhai number galat hai! Sahi number bhejo jaise 50, 100 😅"
+            update.message.reply_text(msg)
 
 def main():
     keep_alive()
-    updater = Updater(BOT_TOKEN)
+    updater = Updater(BOT_TOKEN, use_context=True)
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", start))
@@ -193,6 +188,7 @@ def main():
     dp.add_handler(CallbackQueryHandler(button_callback, pattern="get_followers"))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_messages))
 
+    print("Bot started polling...")
     updater.start_polling()
     updater.idle()
 
