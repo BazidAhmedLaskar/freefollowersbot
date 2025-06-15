@@ -130,44 +130,57 @@ def handle_messages(update: Update, context: CallbackContext):
         text = "🔢 How many followers do you want? (e.g., 50, 100)" if lang == "en" else "🤔 Kitne followers chahiye? (jaise 50, 100) ✨"
         update.message.reply_text(text)
 
-    elif state.get("step") == "ask_followers":
-        if message.isdigit():
-            state["followers"] = int(message)
+   elif state.get("step") == "ask_followers":
+    if message.isdigit():
+        state["followers"] = int(message)
 
-            if lang == "en":
-                text = (
-                    f"✅ *Thank you {name}!* 🎉\n\n"
-                    f"📝 Your request for *{state['followers']}* followers has been submitted.\n"
-                    "⏳ Please wait up to *24 hours*.\n\n"
-                    "🤝 DM us if needed: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)\n\n"
-                    "❤️ Stay tuned for more giveaways!\n#TeamTasmina 🔥"
-                )
-            else:
-                text = (
-                    f"✅ *Shukriya {name}!* ❤️\n\n"
-                    f"📤 Tumhara request *{state['followers']}* followers ke liye bhej diya gaya hai!\n"
-                    "🕒 24 ghante tak ka wait karo bhai 😇\n\n"
-                    "📩 Agar nahi aaye toh DM karo: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)\n\n"
-                    "🔥 Aur tricks aur giveaways ke liye bane raho! #TeamTasmina"
-                )
-
-            update.message.reply_text(text, parse_mode="Markdown")
-
-            context.bot.send_message(
-                chat_id=ADMIN_ID,
-                text=(
-                    "📥 New Follower Request:\n\n"
-                    f"👤 Name: {full_name} (ID: `{user_id}`)\n"
-                    f"📸 Username: `{state['username']}`\n"
-                    f"🔢 Followers Wanted: {state['followers']}"
-                ),
-                parse_mode="Markdown"
+        if lang == "en":
+            text = (
+                f"✅ *Thank you {name}!* 🎉\n\n"
+                f"📝 Your request for *{state['followers']}* followers has been submitted.\n"
+                "⏳ Please wait up to *24 hours*.\n\n"
+                "📸 To get followers faster:\n"
+                "➡️ Refer friends using the button below\n"
+                "📥 Ask them to start the bot\n"
+                "📸 Then *send the screenshot of the join message from our bot* in the group\n\n"
+                "🎁 *More referrals = Faster delivery + Giveaway entry!*\n\n"
+                "🔗 Instagram Support: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
+            )
+        else:
+            text = (
+                f"✅ *Shukriya {name}!* ❤️\n\n"
+                f"📤 Tumhara request *{state['followers']}* followers ke liye bhej diya gaya hai!\n"
+                "🕒 24 ghante tak ka wait karo bhai 😇\n\n"
+                "📸 Jaldi chahiye? Refer friends kar bhai 👇\n"
+                "👥 Unko bol bot start kare\n"
+                "📸 Fir uska screenshot group mein bhejna mat bhoolna\n\n"
+                "🎁 *Zyada refer = Jaldi followers + Giveaway chance!*\n\n"
+                "📩 DM karo agar help chahiye: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
             )
 
-            del user_data[user_id]
-        else:
-            msg = "❌ Please enter a valid number (e.g., 50, 100)." if lang == "en" else "❗ Bhai number galat hai! Sahi number bhejo jaise 50, 100 😅"
-            update.message.reply_text(msg)
+        # Send confirmation with refer button
+        refer_link = f"https://t.me/{context.bot.username}?start={user_id}"
+        buttons = [[InlineKeyboardButton("🚀 Refer a Friend", url=refer_link)]]
+
+        update.message.reply_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(buttons))
+
+        # Notify admin
+        context.bot.send_message(
+            chat_id=ADMIN_ID,
+            text=(
+                "📥 New Follower Request:\n\n"
+                f"👤 Name: {full_name} (ID: `{user_id}`)\n"
+                f"📸 Username: `{state['username']}`\n"
+                f"🔢 Followers Wanted: {state['followers']}"
+            ),
+            parse_mode="Markdown"
+        )
+
+        del user_data[user_id]
+    else:
+        msg = "❌ Please enter a valid number (e.g., 50, 100)." if lang == "en" else "❗ Bhai number galat hai! Sahi number bhejo jaise 50, 100 😅"
+        update.message.reply_text(msg)
+
 
 def main():
     keep_alive()
