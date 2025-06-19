@@ -11,7 +11,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return "Bot is Alive!"
+    return "Bot is Alive!✅  - Team Tasmina❤️ "
 
 def run():
     app.run(host='0.0.0.0', port=8080)
@@ -26,7 +26,7 @@ def send_main_menu(context, chat_id, name, lang):
         [InlineKeyboardButton("🌐 Website", url="https://free-insta-followers.netlify.app/")],
         [InlineKeyboardButton("🆓 Get Free Followers", callback_data="get_followers")]
     ]
-
+x
     if lang == "en":
         text = f"👋 Hello {name}!\n\n🎉 *Welcome to Team Tasmina's Insta Followers Bot!*\n\n🚀 Get real followers for FREE!\nChoose an option below 👇"
     else:
@@ -61,13 +61,7 @@ def start(update: Update, context: CallbackContext):
                 parse_mode="Markdown"
             )
 
-    # 🔔 Notify admin of new user
-    context.bot.send_message(
-        chat_id=ADMIN_ID,
-        text=f"⚡ *New user started the bot!*\n👤 *Name:* {name}\n🆔 *ID:* `{user_id}`\n🔗 *Username:* @{username}",
-        parse_mode="Markdown"
-    )
-
+  
     # 🌐 Language selection
     buttons = [[
         InlineKeyboardButton("🇮🇳 Hinglish", callback_data="lang_hinglish"),
