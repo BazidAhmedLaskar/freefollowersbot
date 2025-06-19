@@ -38,29 +38,7 @@ def start(update: Update, context: CallbackContext):
     name = update.effective_user.full_name
     username = update.effective_user.username or "NoUsername"
 
-    # ✅ Handle referral
-    if context.args:
-        referrer_id = context.args[0]
-        if referrer_id != str(user_id):  # prevent self-referral
-            try:
-                context.bot.send_message(
-                    chat_id=int(referrer_id),
-                    text=(
-                        f"🎉 *Good news!*\n"
-                        f"{name} just joined the bot using *your referral link!* 🥳\n"
-                        f"Keep referring more to boost your chances! 💯"
-                    ),
-                    parse_mode="Markdown"
-                )
-            except:
-                pass  # if user blocked bot etc.
-
-            context.bot.send_message(
-                chat_id=ADMIN_ID,
-                text=f"👥 Referral Alert!\n{name} joined via {referrer_id}",
-                parse_mode="Markdown"
-            )
-
+   
   
     # 🌐 Language selection
     buttons = [[
@@ -155,7 +133,7 @@ def handle_messages(update: Update, context: CallbackContext):
                     "📸 To get followers faster:\n"
                     "➡️ Refer friends using the button below\n"
                     "📥 Ask them to start the bot\n"
-                    "📸 Then *send the screenshot of the join message from our bot* in the group\n\n"
+
                     "🎁 *More referrals = Faster delivery + Giveaway entry!*\n\n"
                     "🔗 Instagram Support: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
                 )
@@ -166,7 +144,6 @@ def handle_messages(update: Update, context: CallbackContext):
                     "🕒 24 ghante tak ka wait karo bhai 😇\n\n"
                     "📸 Jaldi chahiye? Refer friends kar bhai 👇\n"
                     "👥 Unko bol bot start kare\n"
-                    "📸 Fir uska screenshot group mein bhejna mat bhoolna\n\n"
                     "🎁 *Zyada refer = Jaldi followers + Giveaway chance!*\n\n"
                     "📩 DM karo agar help chahiye: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
                 )
