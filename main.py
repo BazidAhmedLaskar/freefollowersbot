@@ -21,210 +21,107 @@ def keep_alive():
 
 user_data = {}
 
-def send_main_menu(context, chat_id, name, lang):
+def send_main_menu(update, first_name):
     buttons = [
         [InlineKeyboardButton("🌐 Website", url="https://free-insta-followers.netlify.app/")],
         [InlineKeyboardButton("🆓 Get Free Followers", callback_data="get_followers")]
     ]
-
-    if lang == "en":
-        text = f"👋 Hello {name}!\n\n🎉 *Welcome to Team Tasmina's Insta Followers Bot!*\n\n🚀 Get real followers for FREE!\nChoose an option below 👇"
-    else:
-        text = f"🥳 Hello {name}!\n\n🔥 *Team Tasmina ke Insta Followers Bot mein dil se swagat hai!*\n\n💥 Ab free mein real followers milenge bhai! 👇 Option chuno aur chalu ho jao!"
-
-    context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(buttons))
-def start(update: Update, context: CallbackContext):
-    user_id = update.effective_user.id
-    name = update.effective_user.full_name
-    username = update.effective_user.username or "NoUsername"
-
-    # ✅ Handle referral
-    if context.args:
-        referrer_id = context.args[0]
-        if referrer_id != str(user_id):  # prevent self-referral
-            try:
-                context.bot.send_message(
-                    chat_id=int(referrer_id),
-                    text=(
-                        f"🎉 *Good news!*\n"
-                        f"{name} just joined the bot using *your referral link!* 🥳\n"
-                        f"Keep referring more to boost your chances! 💯"
-                    ),
-                    parse_mode="Markdown"
-                )
-            except:
-                pass  # if user blocked bot etc.
-
-            context.bot.send_message(
-                chat_id=ADMIN_ID,
-                text=f"👥 Referral Alert!\n{name} joined via {referrer_id}",
-                parse_mode="Markdown"
-            )
-
-    # 🔔 Notify admin of new user
-    context.bot.send_message(
-        chat_id=ADMIN_ID,
-        text=f"⚡ *New user started the bot!*\n👤 *Name:* {name}\n🆔 *ID:* `{user_id}`\n🔗 *Username:* @{username}",
-        parse_mode="Markdown"
-    )
-
-    # 🌐 Language selection
-    buttons = [[
-        InlineKeyboardButton("🇮🇳 Hinglish", callback_data="lang_hinglish"),
-        InlineKeyboardButton("🇺🇸 English", callback_data="lang_english")
-    ]]
-    context.bot.send_message(
-        chat_id=user_id,
-        text="🌐 Please choose your language:\n🌐 कृपया अपनी भाषा चुनें:",
+    update.message.reply_text(
+        f"👋 Welcome {first_name}! Please choose an option below:",
         reply_markup=InlineKeyboardMarkup(buttons)
     )
 
-def language_selected(update: Update, context: CallbackContext):
-    query = update.callback_query
-    user_id = query.from_user.id
-    name = query.from_user.first_name
-    query.answer()
-
-    lang = "en" if "english" in query.data else "hi"
-    user_data[user_id] = {"lang": lang}
+def start(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    first_name = update.effective_user.first_name
 
     chat = context.bot.get_chat_member(chat_id=CHANNEL_USERNAME, user_id=user_id)
+
     if chat.status in ["member", "administrator", "creator"]:
-        send_main_menu(context, user_id, name, lang)
+        send_main_menu(update, first_name)
     else:
-        join_text = (
-            f"⚠️ *Hello {name},*\n\nPlease join our channel to continue using the bot.\nAfter joining, click '✅ I Have Joined'."
-            if lang == "en"
-            else f"🚫 Oye {name}! Pehle channel join karo tabhi aage badh paoge 👇\n\nJoin karne ke baad '✅ I Have Joined' dabao bhai 🙏"
-        )
         buttons = [
             [InlineKeyboardButton("🔗 Join Channel", url=f"https://t.me/{CHANNEL_USERNAME[1:]}")],
             [InlineKeyboardButton("✅ I Have Joined", callback_data="check_join")]
         ]
-        query.message.reply_text(join_text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(buttons))
+        update.message.reply_text(
+            f"⚠️ Hello {first_name}, you must join our channel to continue.",
+            reply_markup=InlineKeyboardMarkup(buttons)
+        )
 
 def check_join(update: Update, context: CallbackContext):
-    query = update.callback_query
-    user_id = query.from_user.id
-    name = query.from_user.first_name
-    lang = user_data.get(user_id, {}).get("lang", "en")
+    user_id = update.effective_user.id
+    first_name = update.effective_user.first_name
 
     chat = context.bot.get_chat_member(chat_id=CHANNEL_USERNAME, user_id=user_id)
+
     if chat.status in ["member", "administrator", "creator"]:
-        query.message.reply_text("✅ Verified! 🎉", parse_mode="Markdown")
-        send_main_menu(context, user_id, name, lang)
+        update.callback_query.message.reply_text(f"✅ Verified {first_name}! Now choose an option:")
+        send_main_menu(update.callback_query, first_name)
     else:
-        retry = (
-            f"❌ You're still not a member, {name}. Please join first."
-            if lang == "en"
-            else f"😓 {name}, abhi bhi channel join nahi kiya hai! Pehle usko join karo fir aana 🫣"
-        )
-        query.message.reply_text(retry)
+        update.callback_query.message.reply_text(f"❌ You're still not a member, {first_name}. Please join first.")
 
 def button_callback(update: Update, context: CallbackContext):
     query = update.callback_query
     user_id = query.from_user.id
     query.answer()
-    lang = user_data.get(user_id, {}).get("lang", "en")
-    user_data[user_id]["step"] = "ask_username"
-
-    ask = "📱 Enter your Instagram username:" if lang == "en" else "👀 Jaldi se apna Insta username bhejo bhai! 💬"
-    context.bot.send_message(chat_id=user_id, text=ask)
+    user_data[user_id] = {"step": "ask_username"}
+    context.bot.send_message(chat_id=user_id, text="📱 Enter your Instagram username:")
 
 def handle_messages(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
-    name = update.effective_user.first_name
+    first_name = update.effective_user.first_name
     full_name = update.effective_user.full_name
+    tg_id = update.effective_user.id
     message = update.message.text
-    lang = user_data.get(user_id, {}).get("lang", "en")
 
     if user_id not in user_data:
         return
 
     state = user_data[user_id]
 
-    if state.get("step") == "ask_username":
+    if state["step"] == "ask_username":
         state["username"] = message
         state["step"] = "ask_followers"
-        text = "🔢 How many followers do you want? (e.g., 50, 100)" if lang == "en" else "🤔 Kitne followers chahiye? (jaise 50, 100) ✨"
-        update.message.reply_text(text)
+        update.message.reply_text("🔢 How many followers do you want? (e.g., 50, 100, 500)")
 
-    elif state.get("step") == "ask_followers":
+    elif state["step"] == "ask_followers":
         if message.isdigit():
             state["followers"] = int(message)
-
-            if lang == "en":
-                text = (
-                    f"✅ *Thank you {name}!* 🎉\n\n"
-                    f"📝 Your request for *{state['followers']}* followers has been submitted.\n"
-                    "⏳ Please wait up to *24 hours*.\n\n"
-                    "📸 To get followers faster:\n"
-                    "➡️ Refer friends using the button below\n"
-                    "📥 Ask them to start the bot\n"
-                    "📸 Then *send the screenshot of the join message from our bot* in the group\n\n"
-                    "🎁 *More referrals = Faster delivery + Giveaway entry!*\n\n"
-                    "🔗 Instagram Support: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
-                )
-            else:
-                text = (
-                    f"✅ *Shukriya {name}!* ❤️\n\n"
-                    f"📤 Tumhara request *{state['followers']}* followers ke liye bhej diya gaya hai!\n"
-                    "🕒 24 ghante tak ka wait karo bhai 😇\n\n"
-                    "📸 Jaldi chahiye? Refer friends kar bhai 👇\n"
-                    "👥 Unko bol bot start kare\n"
-                    "📸 Fir uska screenshot group mein bhejna mat bhoolna\n\n"
-                    "🎁 *Zyada refer = Jaldi followers + Giveaway chance!*\n\n"
-                    "📩 DM karo agar help chahiye: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
-                )
-refer_link = f"https://t.me/{context.bot.username}?start={user_id}"
-
-# Message to be shared via Telegram
-share_text = (
-    f"📢 I’m getting *real Instagram followers for free* using this awesome bot!\n\n"
-    f"🔥 Try it now: {refer_link}\n\n"
-    f"🤖 Powered by Team Tasmina 🚀"
-)
-
-# Telegram Share URL
-share_url = f"https://t.me/share/url?url={refer_link}&text={share_text}"
-
-buttons = [
-    [InlineKeyboardButton("🚀 Refer a Friend (Share)", url=share_url)],
-   ]
-
-          update.message.reply_text(
-    f"📲 Or just copy and send this to friends:\n\n{share_text}",
-    parse_mode="Markdown"
-)
+            update.message.reply_text(
+                f"✅ Thank you {first_name}!\n\n"
+                f"Your request for *{state['followers']}* followers has been submitted successfully. Please wait up to *24 hours*.\n"
+                "If you don't receive them, DM me on Instagram: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)\n\n"
+                "✨ Stay tuned for more giveaways & tricks!\n"
+                "#TeamTasmina ❤️",
+                parse_mode='Markdown'
+            )
 
             context.bot.send_message(
                 chat_id=ADMIN_ID,
                 text=(
                     "📥 New Follower Request:\n\n"
-                    f"👤 Name: {full_name} (ID: `{user_id}`)\n"
+                    f"👤 Name: {full_name} (ID: `{tg_id}`)\n"
                     f"📸 Username: `{state['username']}`\n"
                     f"🔢 Followers Wanted: {state['followers']}"
                 ),
-                parse_mode="Markdown"
+                parse_mode='Markdown'
             )
 
             del user_data[user_id]
         else:
-            msg = "❌ Please enter a valid number (e.g., 50, 100)." if lang == "en" else "❗ Bhai number galat hai! Sahi number bhejo jaise 50, 100 😅"
-            update.message.reply_text(msg)
+            update.message.reply_text("❌ Please enter a valid number (e.g., 50, 100, 500).")
 
 def main():
     keep_alive()
-    updater = Updater(BOT_TOKEN, use_context=True)
+    updater = Updater(BOT_TOKEN)
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CallbackQueryHandler(language_selected, pattern="lang_"))
     dp.add_handler(CallbackQueryHandler(check_join, pattern="check_join"))
-    dp.add_handler(CallbackQueryHandler(button_callback, pattern="get_followers"))
+    dp.add_handler(CallbackQueryHandler(button_callback))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_messages))
 
-    print("Bot started polling...")
     updater.start_polling()
     updater.idle()
 
