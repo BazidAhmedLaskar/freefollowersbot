@@ -7,11 +7,12 @@ BOT_TOKEN = '7192034833:AAHdW7xJBwzMgz8FJ6pPb11fGCDyzHmsasA'
 CHANNEL_USERNAME = '@freeinstagramfollowers_10'
 ADMIN_ID = 6178260867
 
+
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "Bot is Alive!✅  - Team Tasmina❤️ "
+    return "Bot is Alive!✅  - Team Tasmina❤️"
 
 def run():
     app.run(host='0.0.0.0', port=8080)
@@ -26,21 +27,14 @@ def send_main_menu(context, chat_id, name, lang):
         [InlineKeyboardButton("🌐 Website", url="https://free-insta-followers.netlify.app/")],
         [InlineKeyboardButton("🆓 Get Free Followers", callback_data="get_followers")]
     ]
-x
     if lang == "en":
         text = f"👋 Hello {name}!\n\n🎉 *Welcome to Team Tasmina's Insta Followers Bot!*\n\n🚀 Get real followers for FREE!\nChoose an option below 👇"
     else:
         text = f"🥳 Hello {name}!\n\n🔥 *Team Tasmina ke Insta Followers Bot mein dil se swagat hai!*\n\n💥 Ab free mein real followers milenge bhai! 👇 Option chuno aur chalu ho jao!"
-
     context.bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(buttons))
+
 def start(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
-    name = update.effective_user.full_name
-    username = update.effective_user.username or "NoUsername"
-
-   
-  
-    # 🌐 Language selection
     buttons = [[
         InlineKeyboardButton("🇮🇳 Hinglish", callback_data="lang_hinglish"),
         InlineKeyboardButton("🇺🇸 English", callback_data="lang_english")
@@ -133,7 +127,6 @@ def handle_messages(update: Update, context: CallbackContext):
                     "📸 To get followers faster:\n"
                     "➡️ Refer friends using the button below\n"
                     "📥 Ask them to start the bot\n"
-
                     "🎁 *More referrals = Faster delivery + Giveaway entry!*\n\n"
                     "🔗 Instagram Support: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
                 )
@@ -147,26 +140,20 @@ def handle_messages(update: Update, context: CallbackContext):
                     "🎁 *Zyada refer = Jaldi followers + Giveaway chance!*\n\n"
                     "📩 DM karo agar help chahiye: [@Lasmini_haobam__](https://instagram.com/Lasmini_haobam__)"
                 )
-refer_link = f"https://t.me/{context.bot.username}?start={user_id}"
 
-# Message to be shared via Telegram
-share_text = (
-    f"📢 I’m getting *real Instagram followers for free* using this awesome bot!\n\n"
-    f"🔥 Try it now: {refer_link}\n\n"
-    f"🤖 Powered by Team Tasmina 🚀"
-)
+            refer_link = f"https://t.me/{context.bot.username}?start={user_id}"
+            share_text = (
+                f"📢 I’m getting *real Instagram followers for free* using this awesome bot!\n\n"
+                f"🔥 Try it now: {refer_link}\n\n"
+                f"🤖 Powered by Team Tasmina 🚀"
+            )
+            share_url = f"https://t.me/share/url?url={refer_link}&text={share_text}"
+            buttons = [[InlineKeyboardButton("🚀 Refer a Friend (Share)", url=share_url)]]
 
-# Telegram Share URL
-share_url = f"https://t.me/share/url?url={refer_link}&text={share_text}"
-
-buttons = [
-    [InlineKeyboardButton("🚀 Refer a Friend (Share)", url=share_url)],
-   ]
-
-          update.message.reply_text(
-    f"📲 Or just copy and send this to friends:\n\n{share_text}",
-    parse_mode="Markdown"
-)
+            update.message.reply_text(
+                f"📲 Or just copy and send this to friends:\n\n{share_text}",
+                parse_mode="Markdown"
+            )
 
             context.bot.send_message(
                 chat_id=ADMIN_ID,
