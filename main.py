@@ -3,8 +3,8 @@ from threading import Thread
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters, CallbackContext
 
-BOT_TOKEN = '7192034833:AAHdW7xJBwzMgz8FJ6pPb11fGCDyzHmsasA'
-CHANNEL_USERNAME = '@freeinstagramfollowers_10'
+BOT_TOKEN = '7311381977:AAG5MTPuYe0ltJEolWlYn1ZjVWbUir0ngWs'
+CHANNEL_USERNAME = '@freefollowers_28'
 ADMIN_ID = 6178260867
 
 app = Flask('')
